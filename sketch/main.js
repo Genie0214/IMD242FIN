@@ -10,6 +10,7 @@ let video; // 비디오 요소
 let handpose; // Handpose 모델
 let predictions = []; // 손 관절 데이터를 저장할 변수
 let message = 'Hello World!'; // 초기 말풍선 텍스트
+let bubbleColor = [255, 255, 255]; // 초기 말풍선 색상
 
 function setup() {
   // 컨테이너의 현재 위치, 크기 등의 정보 가져와서 객체구조분해할당을 통해 너비, 높이 정보를 변수로 추출.
@@ -58,16 +59,21 @@ function draw() {
     const hand = predictions[0];
 
     // 손 모양에 따라 텍스트 변경
+    let newMessage = 'Hello World!';
     if (isCallMe(hand)) {
-      message = 'Call me~';
+      newMessage = 'Call me~';
     } else if (isThumbsUp(hand)) {
-      message = 'Good!';
+      newMessage = 'Good!';
     } else if (isFist(hand)) {
-      message = 'Cheer Up!!!';
+      newMessage = 'Cheer Up!!!';
     } else if (isVSign(hand)) {
-      message = 'Kimchi~!';
-    } else {
-      message = 'Hello World!';
+      newMessage = 'Kimchi~!';
+    }
+
+    // 텍스트가 변경되었을 때 색상 랜덤 변경
+    if (newMessage !== message) {
+      message = newMessage;
+      bubbleColor = [random(255), random(255), random(255)];
     }
 
     const bubbleX = width / 2;
@@ -104,7 +110,7 @@ function isCallMe(hand) {
   return thumbPinkySpread > 100 && foldedFingers;
 }
 
-// 엄지손가락 치켜든 상태 감지 함수
+// ThumbsUp 감지 함수
 function isThumbsUp(hand) {
   const landmarks = hand.landmarks;
   const wrist = landmarks[0];
@@ -124,7 +130,7 @@ function isThumbsUp(hand) {
   );
 }
 
-// 손가락을 모두 오므린 상태 감지 함수
+// isFist 감지 함수
 function isFist(hand) {
   const landmarks = hand.landmarks;
   const palmBase = landmarks[9];
@@ -134,7 +140,7 @@ function isFist(hand) {
   });
 }
 
-// 브이(V) 손 모양 감지 함수
+// isVSign 감지 함수
 function isVSign(hand) {
   const landmarks = hand.landmarks;
   const indexTip = landmarks[8];
@@ -165,7 +171,7 @@ function isVSign(hand) {
 
 // 말풍선 그리기 함수
 function drawSpeechBubble(x, y, w, h) {
-  fill(255);
+  fill(bubbleColor[0], bubbleColor[1], bubbleColor[2]);
   stroke(0);
   strokeWeight(2);
   rectMode(CENTER);
@@ -176,7 +182,8 @@ function drawSpeechBubble(x, y, w, h) {
 // 말풍선 내부 텍스트 그리기 함수
 function drawTextInBubble(textContent, x, y, textSizeValue) {
   fill(0);
-  noStroke();
+  stroke(0);
+  strokeWeight(2);
   textAlign(CENTER, CENTER);
   textSize(textSizeValue);
   text(textContent, x, y);
